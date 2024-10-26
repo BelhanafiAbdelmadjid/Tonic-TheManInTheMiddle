@@ -13,10 +13,10 @@ class WEBServer:
 
         @app.route("/")
         def home():
-            # return redirect(self.redirect_to)
-            return "Hello world"
+            return "<h1>Hello world!</h1>"
+            #return "Hello world"
         
-        app.run(host='0.0.0.0',port=80,debug=False, use_reloader=False) 
+        app.run(host='0.0.0.0',port=5000,debug=False, use_reloader=False) 
         
 
 

