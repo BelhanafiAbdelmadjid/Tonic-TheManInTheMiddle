@@ -23,7 +23,7 @@ def get_network_config():
     # ip_address = socket.gethostbyname(host_name)
     ip_address = socket.gethostbyname_ex(socket.gethostname())[-1][-1]
 
-    mac_int = get_mac()
+    mac_int = get_mac_address()
     mac  = ':'.join(['{:02x}'.format((mac_int >> (i * 8)) & 0xff) for i in range(5, -1, -1)])
 
     return ip_address , mac
@@ -64,8 +64,28 @@ def get_network_mask(ip_address):
 
     return None  # If no match is found
 
+def get_mac_address(ip_address):
+    # Get all network interfaces
+    interfaces = netifaces.interfaces()
+
+    # Loop through interfaces to find the one with the matching IP address
+    for interface in interfaces:
+        addrs = netifaces.ifaddresses(interface)
+
+        # Check if the interface has an IPv4 address (AF_INET)
+        if netifaces.AF_INET in addrs:
+            # Loop through the IPv4 addresses
+            for addr in addrs[netifaces.AF_INET]:
+                # If the IP matches, get the MAC address of the interface
+                if addr['addr'] == ip_address:
+                    # Check if the interface has a MAC address (AF_LINK)
+                    if netifaces.AF_LINK in addrs:
+                        # Return the MAC address
+                        return addrs[netifaces.AF_LINK][0]['addr']
+    return None
+
 if __name__ == '__main__':
-    print(is_ip_in_same_network("192.168.5.1"))
+    print(get_mac_address("192.168.1.73"))
 
 
 import threading

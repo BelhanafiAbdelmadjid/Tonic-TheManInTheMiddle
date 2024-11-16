@@ -90,7 +90,7 @@ class LocalNetworkFrame(ttk.Frame):
         label.pack(pady=10, padx=20, anchor="w")
 
         # Description label
-        description_label = ttk.Label(self, text="This is a description I will modify it after", font=("Arial", 12), anchor="w")
+        description_label = ttk.Label(self, text="Ensure that Tonic has the appropriate privilege access. Enter the target IP address and the default gateway, ensuring both are accessible and properly configured.", font=("Arial", 12), anchor="w")
         description_label.pack(pady=5, padx=20, anchor="w")
 
         # Target IP Address Input
@@ -109,15 +109,23 @@ class LocalNetworkFrame(ttk.Frame):
 
         # Create a frame to hold the buttons on the same line
         button_frame = ttk.Frame(self)
-        button_frame.pack(pady=5, padx=20, anchor="w", fill="x")
+        button_frame.pack(pady=5, padx=20, fill="x")
 
-        # Start Attack button
-        self.start_attack_button = ttk.Button(button_frame, text="Start Attack", command=self.start_attack)
-        self.start_attack_button.pack(side="right", padx=5)
+        # Get Local OS Info button (aligned to the left)
+        self.local_os_info_button = ttk.Button(button_frame, text="Get Local OS Info", command=self.start_attack)
+        self.local_os_info_button.pack(side="left", padx=5)
 
-        # Stop Attack button
-        self.stop_attack_button = ttk.Button(button_frame, text="Stop Attack", command=self.stop_attack)
-        self.stop_attack_button.pack(side="right", padx=5)
+        # Create a separate frame for the right-aligned buttons
+        right_button_frame = ttk.Frame(button_frame)
+        right_button_frame.pack(side="right")
+
+        # Start Attack button (aligned to the right)
+        self.start_attack_button = ttk.Button(right_button_frame, text="Start Attack", command=self.start_attack)
+        self.start_attack_button.pack(side="left", padx=5)
+
+        # Stop Attack button (aligned to the right)
+        self.stop_attack_button = ttk.Button(right_button_frame, text="Stop Attack", command=self.stop_attack)
+        self.stop_attack_button.pack(side="left", padx=5)
 
         # Labels for DNS Spoofing, ARP Spoofing, Web Server (with dots)
         attack_types_frame = ttk.Frame(self)
