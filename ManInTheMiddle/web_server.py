@@ -127,6 +127,6 @@ class WEBServer:
 
 
 if __name__ == "__main__":
-    w = WEBServer()
+    w = WEBServer(web_server_q=None)
     w.listen()
 

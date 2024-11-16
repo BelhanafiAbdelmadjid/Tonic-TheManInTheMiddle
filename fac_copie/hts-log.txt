@@ -1,0 +1,17 @@
+HTTrack3.49-2 launched on Sat, 16 Nov 2024 18:40:00 at http://finfo.usthb.dz
+(httrack http://finfo.usthb.dz -O ./ )
+
+Information, Warnings and Errors reported for this mirror:
+note:	the hts-log.txt file, and hts-cache folder, may contain sensitive information,
+	such as username/password authentication for websites mirrored in this project
+	do not share these files/folders if you want these information to remain private
+
+18:41:15	Warning: 	Unexpected socket error during pre-loop
+18:41:16	Error: 	"Receive Error" (-4) after 2 retries at link finfo.usthb.dz/robots.txt (from primary/primary)
+18:41:16	Warning: 	Unexpected socket error during pre-loop
+18:41:17	Warning: 	Retry after error -4 (Receive Error) at link finfo.usthb.dz/ (from primary/primary)
+18:42:32	Warning: 	Unexpected socket error during pre-loop
+18:42:33	Warning: 	Retry after error -4 (Receive Error) at link finfo.usthb.dz/ (from primary/primary)
+18:43:48	Warning: 	Unexpected socket error during pre-loop
+18:43:49	Error: 	"Receive Error" (-4) after 2 retries at link finfo.usthb.dz/ (from primary/primary)
+18:43:49	Warning: 	No data seems to have been transferred during this session! : restoring previous one!
