@@ -11,6 +11,8 @@ from arp_spoof import ARPSpoofer,ExceptionMacAddress
 from web_server import WEBServer
 from scapy import error
 import requests
+import json
+from datetime import datetime
 
 class App(tk.Tk):
     def __init__(self):
@@ -164,12 +166,34 @@ class LocalNetworkFrame(ttk.Frame):
         # Link the scrollbar to the text widget
         scrollbar.config(command=self.log_text_area.yview)
 
+        
+
+        self.log_message_to_user('''
+======================================================
+                    WELCOME TO''',date=False)
         # Set the default message in the text area
         self.set_default_message()
+        self.log_message_to_user('''
+          The all-in-one ManInTheMiddle
+======================================================''',date=False)
+        self.log_message_to_user('''\n-> Designed for network analysis and remote reconnaissance. ''',date=False)
+
+        self.log_message_to_user('''
+💡 **Key Features:**
+    - **Spoofing** (DNS, ARP): Intercept and redirect network traffic seamlessly.
+    - **Multi-Protocol Reconnaissance**: HTTP, HTTPS, DNS and more!
+                                 
+🔒 **Important:**
+   This tool is intended for educational purposes and authorized testing only. Misuse may result in legal consequences.
+
+''',date=False)
+        self.log_message_to_user('Start by filling necessay input and start the attack...')
+        self.log_text_area.see('1.0')
+
+        
 
     def set_default_message(self):
-        default_text = '''\n\n
-.----------------------------------------------------.
+        default_text = '''.----------------------------------------------------.
 |                                                    |
 |                                                    |
 | .-') _                     .-') _                  |
@@ -183,13 +207,72 @@ class LocalNetworkFrame(ttk.Frame):
 |   `--'        `-----' `--'  `--'  `--'     `-----' |
 |                                                    |
 |                                                    |
-'----------------------------------------------------'
-\n\n'''
+'----------------------------------------------------' '''
+        
+        # self.log_text_area.config(state="normal")  # Temporarily make the text area editable
+        # self.log_text_area.insert(tk.END, default_text + "\n")  # Insert the default text
+        # self.log_text_area.config(state="disabled")  # Make the text area non-editable again
+        self.log_message_to_user(default_text,date=False)
+
+
+    def log_message_to_user(self,message,date=True) :
+        current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if date == True :
+            finale_output = f"{current_date} ~ {message}\n"
+        else :
+            finale_output = f"{message}\n"
+
         self.log_text_area.config(state="normal")  # Temporarily make the text area editable
-        self.log_text_area.insert(tk.END, default_text + "\n")  # Insert the default text
-        self.log_text_area.config(state="disabled")  # Make the text area non-editable again
+        self.log_text_area.insert(tk.END,finale_output )
+        self.log_text_area.see(tk.END)  # Insert the default text
+        self.log_text_area.config(state="disabled")
 
     def start_attack(self):
+        def format_result(data) :
+            # Parse the content
+            content = json.loads(data.decode('utf-8'))
+
+            # Organizing data into separate categories
+            os_info = [
+                f"Operating System: {content['os']}",
+                f"CPU Cores: {content['cpu']}",
+                f"Memory: {content['memory']} GB"
+            ]
+
+            # Battery info (empty in this case)
+            battery_info = [
+                "Battery: Empty (No data available)" if not content.get('battery') else f"Battery: {content['battery']}"
+            ]
+
+            # Devices (peripherals)
+            peripherals = []
+            if 'devices' in content :
+                for device in content['devices']:
+                    peripherals.append(f"Device Type: {device['kind']}, Label: {device['label']}, Device ID: {device['deviceId']}")
+
+            # Log in a structured way
+            # print("Operating System Info:")
+            self.log_message_to_user("\n\nOperating System Info:",date=True)
+            for info in os_info:
+                self.log_message_to_user(f"- {info}",date=False)
+                # print(f"- {info}")
+
+            # print("\nBattery Info:")
+            self.log_message_to_user("\nBattery Info:",date=False)
+            for info in battery_info:
+                self.log_message_to_user(f"- {info}",date=False)
+                # print(f"- {info}")
+
+            # print("\nPeripherals (Devices):")
+            self.log_message_to_user("\nPeripherals (Devices):",date=False)
+            if len(peripherals) != 0 :
+                for device in peripherals:
+                    self.log_message_to_user(f"- {device}",date=False)
+                    # print(f"- {device}")  
+            else :
+                self.log_message_to_user(f"- No Device detected",date=False)
+            self.log_message_to_user(f"\n\n",date=False)
+
         # Get user input
         target_ip = self.target_ip_entry.get().strip()
         default_gtw = self.default_gtw_entry.get().strip()
@@ -224,9 +307,11 @@ class LocalNetworkFrame(ttk.Frame):
         # ------------------- Event to control stopping of threads ------------------- #
         self.stop_event = threading.Event()
 
+
         # ---------------------------------------------------------------------------- #
-        #                          Defining Exception Listener                         #
+        #                              Defining Listeners                              #
         # ---------------------------------------------------------------------------- #
+         # ------------------------ Defining Exception Listener ----------------------- #
         #queue to collect exception
         exception_queue = queue.Queue()
 
@@ -246,19 +331,67 @@ class LocalNetworkFrame(ttk.Frame):
 
                 except queue.Empty:
                     pass  # No exceptions in queue; keep checking
+        # ----------------------- Defining Web server Listener ----------------------- #
+        #Web server Queue
+        web_server_q = queue.Queue()
 
-        # Start the listener thread
+        #Web server Queue Sniffer
+        def web_server_queue_listener():
+            while True:
+                try:
+                    # Block until an exception is available
+                    
+                    message = web_server_q.get(timeout=1)  # Use timeout to check periodically
+                    print("\n\n",message)
+                    if message["type"] == "Alert" :
+                        # Log message to text area
+                        # self.log_text_area.config(state="normal")  # Temporarily make the text area editable
+                        # self.log_text_area.insert(tk.END, f"{message.get('content')}\n")
+                        # self.log_text_area.config(state="disabled")  # Make the text area non-editable again
+                        self.log_message_to_user(f"{message.get('content')}",date=True)
+                    elif message["type"] == "Result" :
+                        # # Log message to text area
+                        # self.log_text_area.config(state="normal")  # Temporarily make the text area editable
+                        # self.log_text_area.insert(tk.END, f"{message.get('content')}\n")
+                        # self.log_text_area.config(state="disabled")  # Make the text area non-editable again
+                        format_result(message.get("content"))
+                except queue.Empty:
+                    pass  # No exceptions in queue; keep checking
+
+        # --------------------------- Definig DNS Listener --------------------------- #
+        #Web server Queue
+        dns_q = queue.Queue()
+
+        #Web server Queue Sniffer
+        def dns_queue_listener():
+            while True:
+                try:
+                    # Block until an exception is available
+                    
+                    message = dns_q.get(timeout=1)  # Use timeout to check periodically
+                    self.log_message_to_user(f"{message}",date=True)
+                    
+                except queue.Empty:
+                    pass  # No exceptions in queue; keep checking
+
+
+        # Start the listeners threads
         listener_thread = threading.Thread(target=exception_listener, daemon=True)
+        queue_web_server_thread = threading.Thread(target=web_server_queue_listener, daemon=True)
+        queue_dns_thread = threading.Thread(target=dns_queue_listener, daemon=True)
+
         listener_thread.start()
+        queue_web_server_thread.start()
+        queue_dns_thread.start()
         # ---------------------------------------------------------------------------- #
 
         # ---------------------------------------------------------------------------- #
         #                           Defining threads starters                          #
         # ---------------------------------------------------------------------------- #
 
-        def run_dns_spoofer(attacker_ip,target_ip):
+        def run_dns_spoofer(attacker_ip,target_ip,dns_q):
             try :
-                dns_spoofer = DNSSpoofer(attacker_ip=attacker_ip, victim_ip=target_ip, domain="usthb")
+                dns_spoofer = DNSSpoofer(attacker_ip=attacker_ip, victim_ip=target_ip, domain="usthb",queue=dns_q)
                 dns_spoofer.spoof()
             except Exception as e: 
                 print("\n\n***DNS ERROR CAPTURED***")
@@ -279,9 +412,9 @@ class LocalNetworkFrame(ttk.Frame):
                 exception_queue.put(e)
 
 
-        def run_web_server():
+        def run_web_server(web_server_q):
             try : 
-                web_server = WEBServer()
+                web_server = WEBServer(web_server_q)
                 web_server.listen()
             except Exception as e: 
                 print("\n\n***FLASK ERROR CAPTURED***")
@@ -292,13 +425,14 @@ class LocalNetworkFrame(ttk.Frame):
 
 
         # Create threads
-        self.dns_thread = threading.Thread(target=run_dns_spoofer,args=[attacker_ip,target_ip])
+        self.dns_thread = threading.Thread(target=run_dns_spoofer,args=[attacker_ip,target_ip,dns_q])
         self.dns_dot.config(foreground="green")
 
         self.arp_thread = threading.Thread(target=run_arp_spoofer,args=[target_ip,default_gtw,attacker_mac])
         self.arp_dot.config(foreground="green")
 
-        self.web_server_thread = threading.Thread(target=run_web_server)
+        
+        self.web_server_thread = threading.Thread(target=run_web_server, args=(web_server_q,))
         self.web_dot.config(foreground="green")
 
         self.dns_thread.start()
@@ -313,11 +447,9 @@ class LocalNetworkFrame(ttk.Frame):
         # ---------------------------------------------------------------------------- #
 
         # Log message to text area
-        self.log_text_area.config(state="normal")  # Temporarily make the text area editable
-        self.log_text_area.insert(tk.END, f"Starting attack on {target_ip} (Gateway: {default_gtw})...\n")
-        self.log_text_area.config(state="disabled")  # Make the text area non-editable again
+        self.log_message_to_user(f"Starting attack on {target_ip} (Gateway: {default_gtw})...",date=True)
 
-        
+  
 
     def stop_attack(self):
         print("STOPING THE ATTACK dsqdsqddsqld")

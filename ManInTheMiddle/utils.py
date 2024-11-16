@@ -23,8 +23,8 @@ def get_network_config():
     # ip_address = socket.gethostbyname(host_name)
     ip_address = socket.gethostbyname_ex(socket.gethostname())[-1][-1]
 
-    mac_int = get_mac_address()
-    mac  = ':'.join(['{:02x}'.format((mac_int >> (i * 8)) & 0xff) for i in range(5, -1, -1)])
+    mac = get_mac_address(ip_address)
+    # mac  = ':'.join(['{:02x}'.format((mac_int >> (i * 8)) & 0xff) for i in range(5, -1, -1)])
 
     return ip_address , mac
     
@@ -85,7 +85,7 @@ def get_mac_address(ip_address):
     return None
 
 if __name__ == '__main__':
-    print(get_mac_address("192.168.1.73"))
+    print(get_network_config()[0])
 
 
 import threading
