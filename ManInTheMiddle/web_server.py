@@ -122,7 +122,11 @@ class WEBServer:
             os.kill(os.getpid(), signal.SIGINT)
             return make_response(jsonify(None), 200)
 
-        app.run(host='0.0.0.0',port=443,debug=False, use_reloader=False, ssl_context=('cert.pem', 'key.pem')) 
+        try :
+            app.run(host='0.0.0.0',port=443,debug=False, use_reloader=False, ssl_context=('cert.pem', 'key.pem')) 
+            print("DSQDSQDSQDSQD656")
+        except Exception as e :
+            print("FLASK dsqdqsdsqsq ",e)
         
 
 

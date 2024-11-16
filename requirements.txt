@@ -49,5 +49,6 @@ urllib3==2.2.3
 urwid==2.6.15
 wcwidth==0.2.13
 Werkzeug==3.0.4
+WMI==1.4.9
 wsproto==1.2.0
 zstandard==0.23.0

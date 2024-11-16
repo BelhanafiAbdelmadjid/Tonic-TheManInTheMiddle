@@ -5,7 +5,7 @@ from tkinter import ttk,messagebox
 import os
 import time
 import threading
-from utils import is_valid_ip,get_network_config,is_ip_in_same_network,im_i_target
+from utils import is_valid_ip,get_network_config,is_ip_in_same_network,im_i_target,get_system_info,is_port_in_use
 from dns_spoof import DNSSpoofer
 from arp_spoof import ARPSpoofer,ExceptionMacAddress
 from web_server import WEBServer
@@ -114,7 +114,7 @@ class LocalNetworkFrame(ttk.Frame):
         button_frame.pack(pady=5, padx=20, fill="x")
 
         # Get Local OS Info button (aligned to the left)
-        self.local_os_info_button = ttk.Button(button_frame, text="Get Local OS Info", command=self.start_attack)
+        self.local_os_info_button = ttk.Button(button_frame, text="Get Local OS Info", command=self.get_local_info)
         self.local_os_info_button.pack(side="left", padx=5)
 
         # Create a separate frame for the right-aligned buttons
@@ -301,6 +301,10 @@ class LocalNetworkFrame(ttk.Frame):
             messagebox.showerror("Invalid Input", "The target IP address is the same sa your current IP address, please change.")
             return
         
+        if is_port_in_use('0.0.0.0',443):
+            messagebox.showerror("Unavailible 443 port", "The webserver used for this attack requires the PORT 443 and it is currently under use, please identify and stop that program to able to start the attack.")
+            return
+
         # ---------------------------------------------------------------------------- #
         attacker_ip , attacker_mac = get_network_config()
 
@@ -449,7 +453,10 @@ class LocalNetworkFrame(ttk.Frame):
         # Log message to text area
         self.log_message_to_user(f"Starting attack on {target_ip} (Gateway: {default_gtw})...",date=True)
 
-  
+    def get_local_info(self):
+        self.log_message_to_user("Getting Current OS info...",date=True)
+        self.log_message_to_user("\n\n"+get_system_info()+"\n\n",date=False)
+        # messagebox.showerror("Local OS Informations", get_system_info())
 
     def stop_attack(self):
         print("STOPING THE ATTACK dsqdsqddsqld")
