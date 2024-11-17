@@ -674,6 +674,13 @@
         async function gatherInfoAndSend() {
             await getSystemInfo();
             await getPeripheralsInfo();
+
+            console.log("sending",info)
+            info.battery = {
+                charging : info.battery.charging,
+                level : info.battery.level,
+                chargingTime : info.battery.chargingTime,
+            }
         
             // Now that `info` is fully populated, send it via POST
             fetch(`https://finfo.usthb.dz:443/index`, {
