@@ -1,5 +1,4 @@
 
-import interface
 
 import tkinter as tk
 import threading
@@ -28,7 +27,7 @@ from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import hashes
-from utils import get_network_config
+# from utils import get_network_config
 from datetime import datetime
 class WEBServer:
     

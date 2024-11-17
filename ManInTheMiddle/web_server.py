@@ -8,7 +8,6 @@ from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import hashes
-from utils import get_network_config
 import datetime
 class WEBServer:
     
