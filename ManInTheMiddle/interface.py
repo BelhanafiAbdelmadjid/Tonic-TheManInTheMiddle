@@ -5,10 +5,10 @@ from tkinter import ttk,messagebox
 import os
 import time
 import threading
-from utils import is_valid_ip,get_network_config,is_ip_in_same_network,im_i_target,get_system_info,is_port_in_use
-from dns_spoof import DNSSpoofer
-from arp_spoof import ARPSpoofer,ExceptionMacAddress
-from web_server import WEBServer
+# from utils import is_valid_ip,get_network_config,is_ip_in_same_network,im_i_target,get_system_info,is_port_in_use
+# from dns_spoof import DNSSpoofer
+# from arp_spoof import ARPSpoofer,ExceptionMacAddress
+# from web_server import WEBServer
 from scapy import error
 import requests
 import json
@@ -497,71 +497,6 @@ class LocalNetworkFrame(ttk.Frame):
             self.log_text_area.insert(tk.END, f"Stopping the attack, everything back to normal...\n")
             self.log_text_area.config(state="disabled")  # Make the text area non-editable again
 
-# class HostTargetFrame(ttk.Frame):
-#     def __init__(self, parent):
-#         super().__init__(parent)
-        
-#         label = ttk.Label(self, text="Host Target", font=("Arial", 18, "bold"), anchor="w")
-#         label.pack(pady=10, padx=20, anchor="w")
-
-#         start_scan_button = ttk.Button(self, text="Start Scan", command=self.start_scan)
-#         start_scan_button.pack(pady=10, padx=20, anchor="w")
-
-#         text_frame = ttk.Frame(self)
-#         text_frame.pack(pady=10, padx=20, fill="both", expand=True)
-
-#         scrollbar = ttk.Scrollbar(text_frame)
-#         scrollbar.pack(side="right", fill="y")
-
-#         self.scan_result_text = tk.Text(text_frame, height=10, width=50, wrap="word", state="normal", yscrollcommand=scrollbar.set)
-#         self.scan_result_text.pack(fill="both", expand=True)
-#         scrollbar.config(command=self.scan_result_text.yview)
-#         self.scan_result_text.config(state="disabled")
-
-#         self.progress_bar = ttk.Progressbar(self, mode="indeterminate")
-#         self.set_default_message()
-
-#     def set_default_message(self):
-#         default_text = '''\n\n
-# .----------------------------------------------------.
-# |                                                    |
-# |                                                    |
-# | .-') _                     .-') _                  |
-# |(  OO) )                   ( OO ) )                 |
-# |/     '._  .-'),-----. ,--./ ,--,' ,-.-')   .-----. |
-# ||'--...__)( OO'  .-.  '|   \ |  |\ |  |OO) '  .--./ |
-# |'--.  .--'/   |  | |  ||    \|  | )|  |  \ |  |('-. |
-# |   |  |   \_) |  |\|  ||  .     |/ |  |(_//_) |OO  )|
-# |   |  |     \ |  | |  ||  |\    | ,|  |_.'||  |`-'| |
-# |   |  |      `'  '-'  '|  | \   |(_|  |  (_'  '--'\ |
-# |   `--'        `-----' `--'  `--'  `--'     `-----' |
-# |                                                    |
-# |                                                    |
-# '----------------------------------------------------'
-# \n\n'''
-#         self.scan_result_text.config(state="normal")
-#         self.scan_result_text.insert(tk.END, default_text + "\n")
-#         self.scan_result_text.config(state="disabled")
-
-#     def start_scan(self):
-#         self.scan_result_text.config(state="normal")
-#         self.scan_result_text.insert(tk.END, "Scan in progress... Please wait.\n")
-#         self.scan_result_text.insert(tk.END, "⏳ Please wait...\n")
-#         self.scan_result_text.config(state="disabled")
-
-#         self.progress_bar.pack(fill="x")
-#         self.progress_bar.start()
-
-#         threading.Thread(target=self.simulate_scan, daemon=True).start()
-
-#     def simulate_scan(self):
-#         time.sleep(5)
-#         self.scan_result_text.config(state="normal")
-#         self.scan_result_text.insert(tk.END, "\nScan completed successfully!\nNo issues found.\n")
-#         self.scan_result_text.config(state="disabled")
-        
-#         self.progress_bar.stop()
-#         self.progress_bar.pack_forget()
 
 
 if __name__ == "__main__":
